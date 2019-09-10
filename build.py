@@ -145,13 +145,20 @@ class Builder:
         shutil.copy(self.run, self.s_path)
         subprocess.call(self.cmd, shell=True)
 
+    def static(self):
+        '''
+        Make the binary static by removing dynamic linking refs and
+        embedding the dynamic libs
+        '''
+        print('Statically linking binary')
+        subprocess.call(['staticx', 'dist/salt', 'dist/salt'])
+
     def report(self):
         art = os.path.join(self.cwd, 'dist', self.name)
         print(f'Executable created in {art}')
-        print(self.venv_dir)
 
     def clean(self):
-        #shutil.rmtree(self.venv_dir)
+        shutil.rmtree(self.venv_dir)
         shutil.rmtree(os.path.join(self.cwd, 'build'))
         os.remove(os.path.join(self.cwd, f'{self.name}.spec'))
 
@@ -161,6 +168,7 @@ class Builder:
         self.mk_adds()
         self.mk_cmd()
         self.pyinst()
+        self.static()
         self.report()
         self.clean()
 
