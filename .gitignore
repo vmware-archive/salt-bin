@@ -1,0 +1,117 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[codx]
+
+# C extensions
+*.so
+
+# Ignore generated C files (Cython)
+*.c
+
+# iPython notebooks and checkpoints
+*.ipynb
+.ipynb_checkpoints
+
+# patch files
+*.orig
+
+# Don't commit Ubu SPA
+raas/static/*
+
+# Don't commit a deploy-key
+deploy-key
+
+# Distribution / packaging
+.Python
+env/
+bin/
+build/
+develop-eggs/
+dist/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.cache
+.pytest_cache
+nosetests.xml
+coverage.xml
+
+# Pytest
+pytest.ini
+
+# Translations
+*.mo
+
+# macOS
+.DS_Store
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# Rope
+.ropeproject
+
+# Django stuff:
+*.log
+*.pot
+
+# Sphinx documentation
+doc/_build/
+doc/user/ubu/_build/
+
+# Local VIM RC
+.lvimrc
+
+# Swap files
+.*.swp
+
+# nvim
+*.un~
+*~
+
+# setup compile left-overs
+*.py_orig
+
+# Tags
+TAGS
+tags
+
+# kdevelop
+*.kdev4
+
+# pycharm
+.idea*
+
+# VSCode
+.vscode*
+
+# pyenv
+.python-version
+
+.ci/.rootdir
+
+# Coverage data files
+.coverage.*
+
+# vscode
+.vscode
+.pytest_cache
+
