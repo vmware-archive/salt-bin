@@ -15,15 +15,15 @@ Usage
 
 Just clone the repo and run `build.py`. 
 
-git clone https://github.com/saltstack/salt-bin.git
-cd salt-bin
-./build.py
+* git clone https://github.com/saltstack/salt-bin.git
+* cd salt-bin
+* ./build.py
 
 If you want to add extra deps to your build of Salt just copy the
 requirements.txt add your deps and then point the build.py script to it
 with the `-r` flag.
 
-./build.py -r my-requirements.txt
+* ./build.py -r my-requirements.txt
 
 Dependencies
 ============
