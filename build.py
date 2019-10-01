@@ -212,6 +212,9 @@ class Builder:
             tfh.add('PKG-INFO')
             tfh.add('dist/salt', arcname=f'salt-{self.mver}')
 
+    def mv_final(self):
+        shutil.move('dist/salt', f'dist/salt-{self.mver}')
+
     def report(self):
         art = os.path.join(self.cwd, 'dist', self.name)
         print(f'Executable created in {art}')
@@ -231,6 +234,7 @@ class Builder:
         self.pyinst()
         self.static()
         self.mk_tar()
+        self.mv_final()
         self.report()
         self.clean()
 
