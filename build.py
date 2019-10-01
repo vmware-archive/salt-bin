@@ -4,10 +4,28 @@ import os
 import shutil
 import subprocess
 import tempfile
+import tarfile
 import venv
 import argparse
 
 OMIT = ('__pycache__', 'PyInstaller', 'pip', 'setuptools', 'pkg_resources', '__pycache__', 'dist-info', 'egg-info')
+
+PKGINFO = '''Metadata-Version: 1.1
+Name: saltbin
+Version: {}
+Summary: Salt System Management all in one binary
+Home-page: UNKNOWN
+Author: UNKNOWN
+Author-email: UNKNOWN
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Development Status :: 5 - Production/Stable
+'''
 
 
 def parse():
@@ -20,6 +38,13 @@ def parse():
             '-n',
             default='salt',
             help='The name of the script to build')
+    parser.add_argument(
+            '--salt-version',
+            '-s',
+            dest='sver',
+            default='',
+            help='The version of Salt to build',
+            )
     parser.add_argument(
             '-r',
             '--requirements',
@@ -45,6 +70,8 @@ class Builder:
         self.venv_dir = tempfile.mkdtemp(prefix='pop_', suffix='_venv')
         self.python_bin = os.path.join(self.venv_dir, 'bin', 'python')
         self.vroot = os.path.join(self.venv_dir, 'lib')
+        self.mver = self.__get_meta_ver()
+        self.req = self.__mk_requirements()
         self.all_paths = set()
         self.imports = set()
         self.datas = set()
@@ -58,13 +85,33 @@ class Builder:
               '--clean',
             ]
 
+    def __get_meta_ver(self):
+        vstr = subprocess.run('pip search salt', check=True, stdout=subprocess.PIPE, shell=True).stdout
+        final = ''
+        for line in vstr.split(b'\n'):
+            if line.startswith(b'salt ('):
+                final = line.decode()
+        return final[final.index('(') + 1: final.rindex(')')]
+
+    def __mk_requirements(self):
+        req = os.path.join(self.cwd, '__build_requirements.txt')
+        with open(self.opts['requirements'], 'r') as rfh:
+            data = rfh.read()
+            if self.opts['sver']:
+                data += f'\nsalt=={self.opts["sver"]}'
+            else:
+                data += 'salt'
+        with open(req, 'w+') as wfh:
+            wfh.write(data)
+        return req
+
     def create(self):
         '''
         Make a virtual environment based on the version of python used to call this script
         '''
         venv.create(self.venv_dir, clear=True, with_pip=True)
         pip_bin = os.path.join(self.venv_dir, 'bin', 'pip')
-        subprocess.call([pip_bin, 'install', '-r', self.opts['requirements']])
+        subprocess.call([pip_bin, 'install', '-r', self.req])
         subprocess.call([pip_bin, 'install', 'PyInstaller'])
         subprocess.call([pip_bin, 'uninstall', '-y', '-r', self.opts['exclude']])
 
@@ -153,6 +200,18 @@ class Builder:
         print('Statically linking binary')
         subprocess.call(['staticx', 'dist/salt', 'dist/salt'])
 
+    def mk_tar(self):
+        '''
+        Create the distribution tarball for this binary that can be used by
+        pypi
+        '''
+        with open('PKG-INFO', 'w+') as wfh:
+            wfh.write(PKGINFO.format(self.mver))
+        tname = f'dist/saltbin-{self.mver}.tar.gz'
+        with tarfile.open(tname, 'w:gz') as tfh:
+            tfh.add('PKG-INFO')
+            tfh.add('dist/salt', arcname=f'salt-{self.mver}')
+
     def report(self):
         art = os.path.join(self.cwd, 'dist', self.name)
         print(f'Executable created in {art}')
@@ -161,6 +220,8 @@ class Builder:
         shutil.rmtree(self.venv_dir)
         shutil.rmtree(os.path.join(self.cwd, 'build'))
         os.remove(os.path.join(self.cwd, f'{self.name}.spec'))
+        os.remove(self.req)
+        os.remove('PKG-INFO')
 
     def build(self):
         self.create()
@@ -169,6 +230,7 @@ class Builder:
         self.mk_cmd()
         self.pyinst()
         self.static()
+        self.mk_tar()
         self.report()
         self.clean()
 
