@@ -86,7 +86,7 @@ class Builder:
             ]
 
     def __get_meta_ver(self):
-        vstr = subprocess.run('pip search salt', check=True, stdout=subprocess.PIPE, shell=True).stdout
+        vstr = subprocess.run('pip3 search salt', check=True, stdout=subprocess.PIPE, shell=True).stdout
         final = ''
         for line in vstr.split(b'\n'):
             if line.startswith(b'salt ('):
