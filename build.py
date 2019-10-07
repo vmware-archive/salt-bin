@@ -57,6 +57,14 @@ def parse():
             default='exclude.txt',
             help='The path to the exclude file, these packages will be removed after install'
             )
+    parser.add_argument(
+            '--system-site',
+            '-S',
+            default=False,
+            action='store_true',
+            dest='sys_site',
+            help='Include the system site-packages when building. This is needed for builds from custom installs of python.',
+            )
     args = parser.parse_args()
     return args.__dict__
 
@@ -109,7 +117,7 @@ class Builder:
         '''
         Make a virtual environment based on the version of python used to call this script
         '''
-        venv.create(self.venv_dir, clear=True, with_pip=True, system_site_packages=True)
+        venv.create(self.venv_dir, clear=True, with_pip=True, system_site_packages=self.opts['sys_site'])
         py_bin = os.path.join(self.venv_dir, 'bin', 'python3')
         pip_cmd = f'{py_bin} -m pip '
         subprocess.run(f'{pip_cmd} install -r {self.req}', shell=True)

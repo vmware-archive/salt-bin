@@ -25,4 +25,4 @@ export LD_LIBRARY_PATH=/usr/local/python37/lib/:/usr/local/openssl11/lib/
 LD_LIBRARY_PATH=/usr/local/python37/lib/:/usr/local/openssl11/lib/ pip3 install staticx
 ln -s /usr/local/python37/bin/staticx /usr/local/bin/staticx
 cd /opt
-LD_LIBRARY_PATH=/usr/local/python37/lib/:/usr/local/openssl11/lib/ python3.7 build.py
+LD_LIBRARY_PATH=/usr/local/python37/lib/:/usr/local/openssl11/lib/ python3.7 build.py -S

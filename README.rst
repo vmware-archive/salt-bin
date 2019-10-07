@@ -25,9 +25,29 @@ with the `-r` flag.
 
 * ./build.py -r my-requirements.txt
 
-Dependencies
+Docker Build
 ============
 
-This script requires python 3 and has only been tested on python 3.7
-The `staticx` python utility is also required
+It may be desireable to build the binary in a docker container. For instance
+building in a centos 6 container should product a more portable binary.
+
+`salt-bin` comes with a script for building  in centos 6 with a newer python.
+To build make a new docker container:
+
+docker run -it centos:6 bash
+
+Then copy the files into the container:
+
+docker cp . <container name>:/opt
+
+Then run the build:
+
+cd /opt
+
+bash scripts/cent6_setup.sh
+
+The results will be in the dist directory where they can be coppied back out with
+the docker cp command:
+
+docker cp <container name>:/opt/dist .
 
