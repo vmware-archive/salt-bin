@@ -75,8 +75,12 @@ class Builder:
         self.name = self.opts['name']
         self.cwd = os.getcwd()
         self.run = os.path.join(self.cwd, 'run.py')
-        self.venv_dir = tempfile.mkdtemp(prefix='pop_', suffix='_venv')
-        self.python_bin = os.path.join(self.venv_dir, 'bin', 'python')
+        if os.name == 'nt':
+            self.venv_dir = tempfile.mkdtemp(dir='C:\\temp', prefix='pop_', suffix='_venv')
+            self.python_bin = os.path.join(self.venv_dir, 'Scripts', 'python')
+        else:
+            self.venv_dir = tempfile.mkdtemp(prefix='pop_', suffix='_venv')
+            self.python_bin = os.path.join(self.venv_dir, 'bin', 'python')
         self.vroot = os.path.join(self.venv_dir, 'lib')
         self.mver = self.__get_meta_ver()
         self.req = self.__mk_requirements()
@@ -118,7 +122,10 @@ class Builder:
         Make a virtual environment based on the version of python used to call this script
         '''
         venv.create(self.venv_dir, clear=True, with_pip=True, system_site_packages=self.opts['sys_site'])
-        py_bin = os.path.join(self.venv_dir, 'bin', 'python3')
+        if os.name == 'nt':
+            py_bin = os.path.join(self.venv_dir, 'Scripts', 'python')
+        else:
+            py_bin = os.path.join(self.venv_dir, 'bin', 'python3')
         pip_cmd = f'{py_bin} -m pip '
         subprocess.run(f'{pip_cmd} install -r {self.req}', shell=True)
         #subprocess.call([pip_bin, 'install', '-r', self.req])
@@ -151,7 +158,7 @@ class Builder:
                     continue
                 self.all_paths.add(full)
 
-    def to_import(self, path): 
+    def to_import(self, path):
         ret = path[path.index('site-packages') + 14:].replace(os.sep, '.')
         if ret.endswith('.py'):
             ret = ret[:-3]
@@ -201,6 +208,7 @@ class Builder:
             self.cmd += f'{arg} '
 
     def pyinst(self):
+        os.makedirs(os.path.dirname(self.s_path))
         shutil.copy(self.run, self.s_path)
         subprocess.call(self.cmd, shell=True)
 
@@ -219,10 +227,10 @@ class Builder:
         '''
         with open('PKG-INFO', 'w+') as wfh:
             wfh.write(PKGINFO.format(self.mver))
-        tname = f'dist/saltbin-{self.mver}.tar.gz'
+        tname = os.path.join('dist', f'saltbin-{self.mver}.tar.gz')
         with tarfile.open(tname, 'w:gz') as tfh:
             tfh.add('PKG-INFO')
-            tfh.add('dist/salt', arcname=f'salt-{self.mver}')
+            tfh.add(os.path.join('dist', 'salt'), arcname=f'salt-{self.mver}')
 
     def mv_final(self):
         shutil.move('dist/salt', f'dist/salt-{self.mver}')
