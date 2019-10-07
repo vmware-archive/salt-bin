@@ -109,11 +109,15 @@ class Builder:
         '''
         Make a virtual environment based on the version of python used to call this script
         '''
-        venv.create(self.venv_dir, clear=True, with_pip=True)
-        pip_bin = os.path.join(self.venv_dir, 'bin', 'pip')
-        subprocess.call([pip_bin, 'install', '-r', self.req])
-        subprocess.call([pip_bin, 'install', 'PyInstaller'])
-        subprocess.call([pip_bin, 'uninstall', '-y', '-r', self.opts['exclude']])
+        venv.create(self.venv_dir, clear=True, with_pip=True, system_site_packages=True)
+        py_bin = os.path.join(self.venv_dir, 'bin', 'python3')
+        pip_cmd = f'{py_bin} -m pip '
+        subprocess.run(f'{pip_cmd} install -r {self.req}', shell=True)
+        #subprocess.call([pip_bin, 'install', '-r', self.req])
+        subprocess.run(f'{pip_cmd} install PyInstaller', shell=True)
+        #subprocess.call([pip_bin, 'install', 'PyInstaller'])
+        subprocess.run(f'{pip_cmd} uninstall -y -r {self.opts["exclude"]}', shell=True)
+        #subprocess.call([pip_bin, 'uninstall', '-y', '-r', self.opts['exclude']])
 
     def omit(self, test):
         for bad in OMIT:
@@ -198,7 +202,7 @@ class Builder:
         embedding the dynamic libs
         '''
         print('Statically linking binary')
-        subprocess.call(['staticx', 'dist/salt', 'dist/salt'])
+        subprocess.call('staticx dist/salt dist/salt', shell=True)
 
     def mk_tar(self):
         '''
@@ -232,7 +236,7 @@ class Builder:
         self.mk_adds()
         self.mk_cmd()
         self.pyinst()
-        self.static()
+        #self.static()
         self.mk_tar()
         self.mv_final()
         self.report()
