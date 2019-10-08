@@ -28,6 +28,42 @@ Classifier: Development Status :: 5 - Production/Stable
 '''
 
 
+SPEC = '''# -*- mode: python ; coding: utf-8 -*-
+
+block_cipher = None
+
+
+a = Analysis(['{s_path}'],
+             pathex=['{cwd}'],
+             binaries=[],
+             datas={datas},
+             hiddenimports={imports},
+             hookspath=[],
+             runtime_hooks=[],
+             excludes=[],
+             win_no_prefer_redirects=False,
+             win_private_assemblies=False,
+             cipher=block_cipher,
+             noarchive=False)
+pyz = PYZ(a.pure, a.zipped_data,
+             cipher=block_cipher)
+exe = EXE(pyz,
+          a.scripts,
+          a.binaries,
+          a.zipfiles,
+          a.datas,
+          [],
+          name='salt',
+          debug=False,
+          bootloader_ignore_signals=False,
+          strip=False,
+          upx=True,
+          upx_exclude=[],
+          runtime_tmpdir=None,
+          console=True )
+'''
+
+
 def parse():
     '''
     Parse the cli args
@@ -65,6 +101,14 @@ def parse():
             dest='sys_site',
             help='Include the system site-packages when building. This is needed for builds from custom installs of python.',
             )
+    parser.add_argument(
+            '--use-spec',
+            '-U',
+            dest='spec',
+            default=False,
+            action='store_true',
+            help='Instead of running PyInstaller completely from the cli generate a spec file, required for Windows',
+            )
     args = parser.parse_args()
     return args.__dict__
 
@@ -75,12 +119,15 @@ class Builder:
         self.name = self.opts['name']
         self.cwd = os.getcwd()
         self.run = os.path.join(self.cwd, 'run.py')
+        self.spec = os.path.join(self.cwd, f'{self.name}.spec')
         if os.name == 'nt':
             self.venv_dir = tempfile.mkdtemp(dir='C:\\temp', prefix='pop_', suffix='_venv')
             self.python_bin = os.path.join(self.venv_dir, 'Scripts', 'python')
+            self.s_path = os.path.join(self.venv_dir, 'Scripts', self.name)
         else:
             self.venv_dir = tempfile.mkdtemp(prefix='pop_', suffix='_venv')
             self.python_bin = os.path.join(self.venv_dir, 'bin', 'python')
+            self.s_path = os.path.join(self.venv_dir, 'bin', self.name)
         self.vroot = os.path.join(self.venv_dir, 'lib')
         self.mver = self.__get_meta_ver()
         self.req = self.__mk_requirements()
@@ -88,7 +135,6 @@ class Builder:
         self.imports = set()
         self.datas = set()
         self.cmd = f'{self.python_bin} -B -OO -m PyInstaller '
-        self.s_path = os.path.join(self.venv_dir, 'bin', self.name)
         self.pyi_args = [
               self.s_path,
               '--log-level=INFO',
@@ -198,6 +244,23 @@ class Builder:
                 if data:
                     self.datas.add(data)
 
+    def mk_spec(self):
+        '''
+        Create a spec file to build from
+        '''
+        datas = []
+        kwargs = {
+                's_path': self.s_path,
+                'cwd': self.cwd,
+                'imports': list(self.imports).__repr__()}
+        for data in self.datas:
+            datas.append(tuple(data.split(os.pathsep)))
+        kwargs['datas'] = datas.__repr__()
+        spec = SPEC.format(**kwargs)
+        with open(self.spec, 'w+') as wfh:
+            wfh.write(spec)
+        self.cmd += f' {self.spec}'
+
     def mk_cmd(self):
         '''
         Create the pyinstaller command
@@ -215,14 +278,6 @@ class Builder:
             os.makedirs(os.path.dirname(self.s_path))
         shutil.copy(self.run, self.s_path)
         subprocess.call(self.cmd, shell=True)
-
-    def static(self):
-        '''
-        Make the binary static by removing dynamic linking refs and
-        embedding the dynamic libs
-        '''
-        print('Statically linking binary')
-        subprocess.call('staticx dist/salt dist/salt', shell=True)
 
     def mk_tar(self):
         '''
@@ -246,7 +301,7 @@ class Builder:
     def clean(self):
         shutil.rmtree(self.venv_dir)
         shutil.rmtree(os.path.join(self.cwd, 'build'))
-        os.remove(os.path.join(self.cwd, f'{self.name}.spec'))
+        os.remove(self.spec)
         os.remove(self.req)
         os.remove('PKG-INFO')
 
@@ -254,9 +309,11 @@ class Builder:
         self.create()
         self.scan()
         self.mk_adds()
-        self.mk_cmd()
+        if self.opts['spec']:
+            self.mk_spec()
+        else:
+            self.mk_cmd()
         self.pyinst()
-        #self.static()
         self.mk_tar()
         self.mv_final()
         self.report()
