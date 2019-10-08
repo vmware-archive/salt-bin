@@ -33,8 +33,8 @@ SPEC = '''# -*- mode: python ; coding: utf-8 -*-
 block_cipher = None
 
 
-a = Analysis(['{s_path}'],
-             pathex=['{cwd}'],
+a = Analysis([r'{s_path}'],
+             pathex=[r'{cwd}'],
              binaries=[],
              datas={datas},
              hiddenimports={imports},
@@ -121,7 +121,7 @@ class Builder:
         self.run = os.path.join(self.cwd, 'run.py')
         self.spec = os.path.join(self.cwd, f'{self.name}.spec')
         if os.name == 'nt':
-            self.venv_dir = tempfile.mkdtemp(dir='C:\\temp')
+            self.venv_dir = tempfile.mkdtemp()
             self.python_bin = os.path.join(self.venv_dir, 'Scripts', 'python')
             self.s_path = os.path.join(self.venv_dir, 'Scripts', self.name)
         else:
@@ -248,13 +248,21 @@ class Builder:
         Create a spec file to build from
         '''
         datas = []
+        imps = []
         kwargs = {
                 's_path': self.s_path,
                 'cwd': self.cwd,
-                'imports': list(self.imports).__repr__()}
+                }
+        for imp in self.imports:
+            imp = imp.replace('\\', '\\\\')
+            imps.append(imp)
         for data in self.datas:
-            datas.append(tuple(data.split(os.pathsep)))
+            src, dst = data.split(os.pathsep)
+            src = src.replace('\\', '\\\\')
+            dst = dst.replace('\\', '\\\\')
+            datas.append((src, dst))
         kwargs['datas'] = datas.__repr__()
+        kwargs['imports'] = imps.__repr__()
         spec = SPEC.format(**kwargs)
         with open(self.spec, 'w+') as wfh:
             wfh.write(spec)
