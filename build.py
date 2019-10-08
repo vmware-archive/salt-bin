@@ -121,11 +121,11 @@ class Builder:
         self.run = os.path.join(self.cwd, 'run.py')
         self.spec = os.path.join(self.cwd, f'{self.name}.spec')
         if os.name == 'nt':
-            self.venv_dir = tempfile.mkdtemp(dir='C:\\temp', prefix='pop_', suffix='_venv')
+            self.venv_dir = tempfile.mkdtemp(dir='C:\\temp')
             self.python_bin = os.path.join(self.venv_dir, 'Scripts', 'python')
             self.s_path = os.path.join(self.venv_dir, 'Scripts', self.name)
         else:
-            self.venv_dir = tempfile.mkdtemp(prefix='pop_', suffix='_venv')
+            self.venv_dir = tempfile.mkdtemp()
             self.python_bin = os.path.join(self.venv_dir, 'bin', 'python')
             self.s_path = os.path.join(self.venv_dir, 'bin', self.name)
         self.vroot = os.path.join(self.venv_dir, 'lib')
@@ -176,11 +176,10 @@ class Builder:
             py_bin = os.path.join(self.venv_dir, 'bin', 'python3')
         pip_cmd = f'{py_bin} -m pip '
         subprocess.run(f'{pip_cmd} install -r {self.req}', shell=True)
-        #subprocess.call([pip_bin, 'install', '-r', self.req])
+        # Install old pycparser to fix: https://github.com/eliben/pycparser/issues/291 on Windows
+        subprocess.run(f'{pip_cmd} install pycparser==2.14', shell=True)
         subprocess.run(f'{pip_cmd} install PyInstaller', shell=True)
-        #subprocess.call([pip_bin, 'install', 'PyInstaller'])
         subprocess.run(f'{pip_cmd} uninstall -y -r {self.opts["exclude"]}', shell=True)
-        #subprocess.call([pip_bin, 'uninstall', '-y', '-r', self.opts['exclude']])
 
     def omit(self, test):
         for bad in OMIT:
