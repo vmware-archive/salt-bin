@@ -109,7 +109,9 @@ class Builder:
         req = os.path.join(self.cwd, '__build_requirements.txt')
         with open(self.opts['requirements'], 'r') as rfh:
             data = rfh.read()
-            if self.opts['sver']:
+            if 'git+https://github.com/Ch3LL/salt.git@2019.2.2' in data:
+                pass
+            elif self.opts['sver']:
                 data += f'\nsalt=={self.opts["sver"]}'
             else:
                 data += 'salt'
