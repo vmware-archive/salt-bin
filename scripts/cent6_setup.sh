@@ -16,7 +16,7 @@ curl -LO https://www.python.org/ftp/python/3.7.4/Python-3.7.4.tar.xz
 tar xvf Python-3.7.4.tar.xz
 cd Python-3.7.4
 # Edit Modules/Setup.dist
-LDFLAGS="-Wl,-rpath=/usr/local/openssl11/lib" ./configure --prefix=/usr/local/python37 --with-openssl=/usr/local/openssl11 --with-system-ffi --enable-shared && make && make install
+LDFLAGS="-Wl,-rpath=/usr/local/openssl11/lib" ./configure --prefix=/usr/local/python37 --with-openssl=/usr/local/openssl11 --with-system-ffi --enable-shared --enable-optimizations && make && make install
 cd ..
 
 ln -s /usr/local/python37/bin/*3.7* /usr/local/bin
