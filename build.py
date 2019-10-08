@@ -210,7 +210,9 @@ class Builder:
             self.cmd += f'{arg} '
 
     def pyinst(self):
-        os.makedirs(os.path.dirname(self.s_path))
+        dname = os.path.dirname(self.s_path)
+        if not os.path.isdir(dname):
+            os.makedirs(os.path.dirname(self.s_path))
         shutil.copy(self.run, self.s_path)
         subprocess.call(self.cmd, shell=True)
 
