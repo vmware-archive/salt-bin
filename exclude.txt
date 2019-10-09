@@ -1,2 +1,4 @@
+# Make sure that pycryptodome or M2Crypto gets used
 pycrypto
+# This breaks Windows builds and is not needed on python 3.6/3.7
 enum34
