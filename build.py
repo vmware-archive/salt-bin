@@ -10,23 +10,6 @@ import argparse
 
 OMIT = ('__pycache__', 'PyInstaller', 'pip', 'setuptools', 'pkg_resources', '__pycache__', 'dist-info', 'egg-info')
 
-PKGINFO = '''Metadata-Version: 1.1
-Name: saltbin
-Version: {}
-Summary: Salt System Management all in one binary
-Home-page: UNKNOWN
-Author: UNKNOWN
-Author-email: UNKNOWN
-License: UNKNOWN
-Description: UNKNOWN
-Platform: UNKNOWN
-Classifier: Operating System :: OS Independent
-Classifier: Programming Language :: Python
-Classifier: Programming Language :: Python :: 3.6
-Classifier: Programming Language :: Python :: 3.7
-Classifier: Development Status :: 5 - Production/Stable
-'''
-
 
 SPEC = '''# -*- mode: python ; coding: utf-8 -*-
 
@@ -301,20 +284,13 @@ class Builder(object):
         shutil.copy(self.run, self.s_path)
         subprocess.call(self.cmd, shell=True)
 
-    def mk_tar(self):
-        '''
-        Create the distribution tarball for this binary that can be used by
-        pypi
-        '''
-        with open('PKG-INFO', 'w+') as wfh:
-            wfh.write(PKGINFO.format(self.mver))
-        tname = os.path.join('dist', f'saltbin-{self.mver}.tar.gz')
-        with tarfile.open(tname, 'w:gz') as tfh:
-            tfh.add('PKG-INFO')
-            tfh.add(os.path.join('dist', 'salt'), arcname=f'salt-{self.mver}')
-
     def mv_final(self):
-        shutil.move('dist/salt', f'dist/salt-{self.mver}')
+        d_dir == 'windows' if self.is_win else 'linux'
+        tgt_dir = os.path.join('dist', d_dir)
+        if not os.path.isdir(tgt_dir):
+            os.makedirs(tgt_dir)
+        tgt_path = os.path.join(tgt_dir, f'salt-{self.mver}')
+        shutil.move(os.path.join('dist', 'salt'), tgt_path)
 
     def report(self):
         art = os.path.join(self.work_dir, 'dist', self.name)
@@ -336,7 +312,6 @@ class Builder(object):
         else:
             self.mk_cmd()
         self.pyinst()
-        self.mk_tar()
         self.mv_final()
         self.report()
         self.clean()
