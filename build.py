@@ -113,19 +113,25 @@ def parse():
     return args.__dict__
 
 
-class Builder:
-    def __init__(self):
-        self.opts = parse()
-        self.name = self.opts['name']
-        self.cwd = os.getcwd()
-        self.run = os.path.join(self.cwd, 'run.py')
-        self.spec = os.path.join(self.cwd, f'{self.name}.spec')
-        if os.name == 'nt':
-            self.venv_dir = tempfile.mkdtemp()
+class Builder(object):
+
+    def __init__(
+            self, name, requirements, sver, sys_site, exclude, spec,
+            work_dir=os.getcwd(), venv_dir=tempfile.mkdtemp(), is_win=False,
+        ):
+        self.name = name
+        self.requirements = requirements
+        self.sver = sver
+        self.sys_site = sys_site
+        self.exclude = exclude
+        self.spef = spec
+        self.work_dir = work_dir
+        self.is_win = is_win
+        self.venv_dir = venv_dir
+        if self.is_win:
             self.python_bin = os.path.join(self.venv_dir, 'Scripts', 'python')
             self.s_path = os.path.join(self.venv_dir, 'Scripts', self.name)
         else:
-            self.venv_dir = tempfile.mkdtemp()
             self.python_bin = os.path.join(self.venv_dir, 'bin', 'python')
             self.s_path = os.path.join(self.venv_dir, 'bin', self.name)
         self.vroot = os.path.join(self.venv_dir, 'lib')
@@ -143,6 +149,14 @@ class Builder:
               '--clean',
             ]
 
+    @property
+    def run(self):
+        return os.path.join(self.work_dir, 'run.py')
+
+    @property
+    def spec(self):
+        return os.path.join(self.work_dir, f'{self.name}.spec')
+
     def __get_meta_ver(self):
         vstr = subprocess.run('pip3 search salt', check=True, stdout=subprocess.PIPE, shell=True).stdout
         final = ''
@@ -152,13 +166,14 @@ class Builder:
         return final[final.index('(') + 1: final.rindex(')')]
 
     def __mk_requirements(self):
-        req = os.path.join(self.cwd, '__build_requirements.txt')
-        with open(self.opts['requirements'], 'r') as rfh:
+        req = os.path.join(self.work_dir, '__build_requirements.txt')
+        with open(self.requirements, 'r') as rfh:
             data = rfh.read()
+            # TODO: configure this via environment or config file?
             if 'git+https://github.com/Ch3LL/salt.git@2019.2.2' in data:
                 pass
-            elif self.opts['sver']:
-                data += f'\nsalt=={self.opts["sver"]}'
+            elif self.sver:
+                data += f'\nsalt=={self.sver}'
             else:
                 data += 'salt'
         with open(req, 'w+') as wfh:
@@ -169,7 +184,7 @@ class Builder:
         '''
         Make a virtual environment based on the version of python used to call this script
         '''
-        venv.create(self.venv_dir, clear=True, with_pip=True, system_site_packages=self.opts['sys_site'])
+        venv.create(self.venv_dir, clear=True, with_pip=True, system_site_packages=self.sys_site)
         if os.name == 'nt':
             py_bin = os.path.join(self.venv_dir, 'Scripts', 'python')
         else:
@@ -179,7 +194,7 @@ class Builder:
         # Install old pycparser to fix: https://github.com/eliben/pycparser/issues/291 on Windows
         subprocess.run(f'{pip_cmd} install pycparser==2.14', shell=True)
         subprocess.run(f'{pip_cmd} install PyInstaller', shell=True)
-        subprocess.run(f'{pip_cmd} uninstall -y -r {self.opts["exclude"]}', shell=True)
+        subprocess.run(f'{pip_cmd} uninstall -y -r {self.exclude}', shell=True)
 
     def omit(self, test):
         for bad in OMIT:
@@ -251,7 +266,7 @@ class Builder:
         imps = []
         kwargs = {
                 's_path': self.s_path,
-                'cwd': self.cwd,
+                'cwd': self.work_dir,
                 }
         for imp in self.imports:
             imp = imp.replace('\\', '\\\\')
@@ -302,12 +317,12 @@ class Builder:
         shutil.move('dist/salt', f'dist/salt-{self.mver}')
 
     def report(self):
-        art = os.path.join(self.cwd, 'dist', self.name)
+        art = os.path.join(self.work_dir, 'dist', self.name)
         print(f'Executable created in {art}')
 
     def clean(self):
         shutil.rmtree(self.venv_dir)
-        shutil.rmtree(os.path.join(self.cwd, 'build'))
+        shutil.rmtree(os.path.join(self.work_dir, 'build'))
         os.remove(self.spec)
         os.remove(self.req)
         os.remove('PKG-INFO')
@@ -316,7 +331,7 @@ class Builder:
         self.create()
         self.scan()
         self.mk_adds()
-        if self.opts['spec']:
+        if self.spec:
             self.mk_spec()
         else:
             self.mk_cmd()
@@ -328,5 +343,9 @@ class Builder:
 
 
 if __name__ == '__main__':
-    builder = Builder()
+    opts = parse()
+    builder = Builder(
+        opts['name'], opts['requirements'], opts['sys_site'], opts['exclude'],
+        opts['spec'], os.getcwd(), is_win=os.name == 'nt',
+    )
     builder.build()
