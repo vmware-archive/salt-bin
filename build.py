@@ -153,7 +153,7 @@ class Builder(object):
         with open(self.requirements, 'r') as rfh:
             data = rfh.read()
             # TODO: configure this via environment or config file?
-            if 'git+https://github.com/Ch3LL/salt.git@2019.2.2' in data:
+            if 'git+https://github.com/Ch3LL/salt' in data:
                 pass
             elif self.sver:
                 data += f'\nsalt=={self.sver}'
