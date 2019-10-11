@@ -176,7 +176,7 @@ class Builder(object):
         subprocess.run(f'{pip_cmd} install -r {self.req}', shell=True)
         # Install old pycparser to fix: https://github.com/eliben/pycparser/issues/291 on Windows
         subprocess.run(f'{pip_cmd} install pycparser==2.14', shell=True)
-        subprocess.run(f'{pip_cmd} install PyInstaller', shell=True)
+        subprocess.run(f'{pip_cmd} install PyInstaller==3.5', shell=True)
         subprocess.run(f'{pip_cmd} uninstall -y -r {self.exclude}', shell=True)
 
     def omit(self, test):
@@ -285,7 +285,7 @@ class Builder(object):
         subprocess.call(self.cmd, shell=True)
 
     def mv_final(self):
-        d_dir == 'windows' if self.is_win else 'linux'
+        d_dir = 'windows' if self.is_win else 'linux'
         tgt_dir = os.path.join('dist', d_dir)
         if not os.path.isdir(tgt_dir):
             os.makedirs(tgt_dir)
@@ -301,7 +301,6 @@ class Builder(object):
         shutil.rmtree(os.path.join(self.work_dir, 'build'))
         os.remove(self.spec)
         os.remove(self.req)
-        os.remove('PKG-INFO')
 
     def build(self):
         self.create()

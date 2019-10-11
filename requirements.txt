@@ -1,5 +1,5 @@
 # We had to apply a patch to salt, once this is in a release we will go back to release versions
-git+https://github.com/Ch3LL/salt.git@2019.2.2
+git+https://github.com/Ch3LL/salt.git@v2019.2.2-1
 Jinja2
 # This should be changed to msgpack-python for Packages
 # msgpack-python>0.3,!=0.5.5
