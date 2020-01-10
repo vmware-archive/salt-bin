@@ -43,4 +43,11 @@ Inside the repo you will find a collection of requirements files and a `run.py`.
 Inside this directory you can make a "basic" build of salt by just calling
 `pop-build -n salt`.
 
+Adding Distributions
+====================
+
+To add distributions to salt-bin just add a config file for `pop-build` into the
+`conf` directory. That config file will likely just have a line for where to
+find the requirements.txt file. The pop-build config can also include settings
+like what python version to build against.
 
