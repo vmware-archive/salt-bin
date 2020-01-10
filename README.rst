@@ -7,47 +7,40 @@ to be easy to make and distribute. Distributing Python applications is
 notoriously difficult, and while there are MANY tools that seek to solve
 this problem, they can't do it in a universal way.
 
-This project aims to combine multiple tools to build a single, portable
-binary for salt.
+How
+====
+
+Salt-bin is a collection of requirements and configurations to build
+distributions of Salt for specific platforms and use cases.
+
+We use pop's build system, as it is build top handle a superset of the
+challanges found in building Salt. So to use salt-bin you call out to
+the `pop-build` executable.
+
+The pop build system can also make use of `pyenv` to make the builds
+target specific versions of python. This allows us to build Salt with
+the same version of Python accross MANY platforms, which allows for
+more rapid development and platform consistency.
 
 Usage
 =====
 
-Just clone the repo and run `build.py`. 
+Install pop-build:
+
+* pip install pop-build
+
+It is a good idea to install pyenv as well, see the pyenv install page:
+
+https://github.com/pyenv/pyenv#installation
+
+Now clone the repo:
 
 * git clone https://github.com/saltstack/salt-bin.git
 * cd salt-bin
-* ./build.py
 
-If you want to add extra deps to your build of Salt just copy the
-requirements.txt add your deps and then point the build.py script to it
-with the `-r` flag.
+Inside the repo you will find a collection of requirements files and a `run.py`.
 
-* ./build.py -r my-requirements.txt
+Inside this directory you can make a "basic" build of salt by just calling
+`pop-build -n salt`.
 
-Docker Build
-============
-
-It may be desireable to build the binary in a docker container. For instance
-building in a centos 6 container should product a more portable binary.
-
-`salt-bin` comes with a script for building  in centos 6 with a newer python.
-To build make a new docker container:
-
-docker run -it centos:6 bash
-
-Then copy the files into the container:
-
-docker cp . <container name>:/opt
-
-Then run the build:
-
-cd /opt
-
-bash scripts/cent6_setup.sh
-
-The results will be in the dist directory where they can be coppied back out with
-the docker cp command:
-
-docker cp <container name>:/opt/dist .
 
