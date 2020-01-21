@@ -41,7 +41,17 @@ Now clone the repo:
 Inside the repo you will find a collection of requirements files and a `run.py`.
 
 Inside this directory you can make a "basic" build of salt by just calling
-`pop-build -n salt`.
+
+* pop-build -n salt
+
+If you have pyenv installed, you can build your binary against a specific version
+of Python. Just add the `pyenv` option:
+
+* pop-build -n salt --pyenv 3.7.6
+
+To see the available python versions you can build against run:
+
+* pyenv install --list | grep " 3\.[6789]"
 
 Adding Distributions
 ====================
