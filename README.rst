@@ -13,7 +13,7 @@ How
 Salt-bin is a collection of requirements and configurations to build
 distributions of Salt for specific platforms and use cases.
 
-We use pop's build system, as it is build top handle a superset of the
+We use pop's build system, as it is build too handle a superset of the
 challanges found in building Salt. So to use salt-bin you call out to
 the `pop-build` executable.
 
@@ -22,25 +22,33 @@ target specific versions of python. This allows us to build Salt with
 the same version of Python accross MANY platforms, which allows for
 more rapid development and platform consistency.
 
-Usage
+Setup
 =====
 
-Install pop-build:
+### Clone the repo
 
-* pip install pop-build
+* git clone https://github.com/saltstack/salt-bin.git
+* cd salt-bin
+
+### Install dependencies
+
+* pip install -r requirements.txt
+
+### Install pyenv (optional)
 
 It is a good idea to install pyenv as well, see the pyenv install page:
 
 https://github.com/pyenv/pyenv#installation
 
-Now clone the repo:
 
-* git clone https://github.com/saltstack/salt-bin.git
-* cd salt-bin
+Usage
+=====
 
 Inside the repo you will find a collection of requirements files and a `run.py`.
 
 Inside this directory you can make a "basic" build of salt by just calling
+
+### Building
 
 * pop-build -n salt
 
@@ -52,6 +60,8 @@ of Python. Just add the `pyenv` option:
 To see the available python versions you can build against run:
 
 * pyenv install --list | grep " 3\.[6789]"
+
+Note: there is no current compatibility with Python >= 3.8
 
 Adding Distributions
 ====================
