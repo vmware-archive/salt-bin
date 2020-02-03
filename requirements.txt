@@ -8,10 +8,6 @@ MarkupSafe
 requests>=1.0.0
 tornado>=4.2.1,<6.0; python_version < '3'
 tornado>=4.2.1,<5.0; python_version >= '3.4'
-
 # Required by Tornado to handle threads stuff.
 futures>=2.0; python_version < '3.0'
-pycryptodomex
-
-# TODO: Building with a custom openssl 1.1.1 on centos 6 is failing to compile M2Crypto, this should be fixed in the future as M2Crypto is prefered
-#M2Crypto>=0.35.2
+M2Crypto>=0.35.2
