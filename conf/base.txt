@@ -1,5 +1,6 @@
 salt
 Jinja2
+distro
 # This should be changed to msgpack-python for Packages
 # msgpack-python>0.3,!=0.5.5
 msgpack>=0.5,!=0.5.5

@@ -38,16 +38,17 @@ Now clone the repo:
 * git clone https://github.com/saltstack/salt-bin.git
 * cd salt-bin
 
-Inside the repo you will find a collection of requirements files and a `run.py`.
+Inside the repo you will find a collection of requirements files and configs.
+The configuration files are for pop-build and can be found in the conf direcotry.
 
 Inside this directory you can make a "basic" build of salt by just calling
 
-* pop-build -n salt
+* pop-build -c conf/basic.conf
 
 If you have pyenv installed, you can build your binary against a specific version
 of Python. Just add the `pyenv` option:
 
-* pop-build -n salt --pyenv 3.7.6
+* pop-build -c conf/basic.conf --pyenv 3.7.6
 
 To see the available python versions you can build against run:
 
@@ -65,6 +66,9 @@ Salt-bin is extended by adding more build configs for specific platforms. Since
 salt-bin is just a collection of `pop-build` configs, you just need to add more
 `pop-build` configs.
 
+Add a config file in the conf directory and a requirements.txt file, along with
+any other needed files. Take a look at conf/base.conf as an example.
+
 Pop-Build Config
 ================
 
@@ -75,6 +79,13 @@ name
 
 The name value defines the name of the binary to build, in the case of `salt-bin`
 this should always be `salt`
+
+run
+----
+
+The run option allows for a specific `run.py` file to be used as the entry point. This
+makes it easy to have a custom entry point that only exposed specific components of
+Salt in the binary.
 
 requirements
 ------------
