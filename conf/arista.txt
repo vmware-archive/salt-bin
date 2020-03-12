@@ -3,32 +3,14 @@
 ## Cython required for PEP538, 540, UTF-8 issue for 'C' locales
 Cython
 
-salt==3000
+salt
 distro
-
-## the dependencies below should be installed by salt as appropriate
-## otherwise troblesome sync of requirements issues
-## Salt 300 uses embedded tornado
-## Jinja2
-## # This should be changed to msgpack-python for Packages
-## # msgpack-python>0.3,!=0.5.5
-## # msgpack-python>0.5,!=0.5.5
-## msgpack>=0.6.2
-## PyYAML<5.1
-## MarkupSafe
-## requests>=1.0.0
-##
-## tornado>=4.2.1,<6.0; python_version < '3'
-## tornado>=4.2.1,<5.0; python_version >= '3.4'
-##
-## # Required by Tornado to handle threads stuff.
-## futures>=2.0; python_version < '3.0'
-
-## pycryptodomex
-# TODO: Building with a custom openssl 1.1.1 on centos 6 is failing to compile M2Crypto, this should be fixed in the future as M2Crypto is prefered
-#M2Crypto>=0.35.2
 
 # building for Arista
 M2Crypto>=0.35.2
 pyeapi>=0.8.3
-
+napalm
+textfsm
+remote-pdb
+lxml
+systemd-python
