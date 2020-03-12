@@ -39,7 +39,7 @@ Now clone the repo:
 * cd salt-bin
 
 Inside the repo you will find a collection of requirements files and configs.
-The configuration files are for pop-build and can be found in the conf direcotry.
+The configuration files are for pop-build and can be found in the conf directory.
 
 Inside this directory you can make a "basic" build of salt by just calling
 

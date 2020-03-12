@@ -1,0 +1,16 @@
+# building for Arista
+
+## Cython required for PEP538, 540, UTF-8 issue for 'C' locales
+Cython
+
+salt
+distro
+
+# building for Arista
+M2Crypto>=0.35.2
+pyeapi>=0.8.3
+napalm
+textfsm
+remote-pdb
+lxml
+systemd-python
