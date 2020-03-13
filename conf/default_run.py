@@ -3,6 +3,7 @@
 
 # Import python libs
 import sys
+import multiprocessing
 
 # Import salt libs
 import salt.scripts
@@ -48,15 +49,6 @@ def redirect():
 
 
 if __name__ == '__main__':
-    if salt.utils.platform.is_windows():
-        # Since this file does not have a '.py' extension, when running on
-        # Windows, spawning any addional processes will fail due to Python
-        # not being able to load this 'module' in the new process.
-        # Work around this by creating a '.pyc' file which will enable the
-        # spawned process to load this 'module' and proceed.
-        import os.path
-        import py_compile
-        cfile = os.path.splitext(__file__)[0] + '.pyc'
-        if not os.path.exists(cfile):
-            py_compile.compile(__file__, cfile)
+    if sys.platform.startswith('win'):
+        multiprocessing.freeze_support()
     redirect()
