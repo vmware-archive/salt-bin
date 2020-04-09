@@ -14,3 +14,4 @@ textfsm
 remote-pdb
 lxml
 systemd-python
+setproctitle
